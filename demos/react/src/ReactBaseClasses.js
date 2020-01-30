@@ -55,7 +55,10 @@ Component.prototype.isReactComponent = {};
  * @final
  * @protected
  */
+
+// 更新组件状态
 Component.prototype.setState = function(partialState, callback) {
+  // 如果传入的新state无效，则给出错误提示
   invariant(
     typeof partialState === 'object' ||
       typeof partialState === 'function' ||
@@ -63,6 +66,9 @@ Component.prototype.setState = function(partialState, callback) {
     'setState(...): takes an object of state variables to update or a ' +
       'function which returns an object of state variables.',
   );
+  // enqueueSetState方法在react-dom里面实现
+  // 由于不同的平台，如react和react-native在组件更新之后，所需要渲染ui的不同，所以这里将updater不固定，而是通过
+  // 参数的形式传入，实现定制化
   this.updater.enqueueSetState(this, partialState, callback, 'setState');
 };
 
@@ -80,6 +86,7 @@ Component.prototype.setState = function(partialState, callback) {
  * @final
  * @protected
  */
+// 用于强制组件的更新，即便state没有更新
 Component.prototype.forceUpdate = function(callback) {
   this.updater.enqueueForceUpdate(this, callback, 'forceUpdate');
 };
@@ -128,6 +135,8 @@ ComponentDummy.prototype = Component.prototype;
 /**
  * Convenience component with default shallow equality check for sCU.
  */
+
+// PureComponent继承与Component
 function PureComponent(props, context, updater) {
   this.props = props;
   this.context = context;
@@ -139,7 +148,10 @@ function PureComponent(props, context, updater) {
 const pureComponentPrototype = (PureComponent.prototype = new ComponentDummy());
 pureComponentPrototype.constructor = PureComponent;
 // Avoid an extra prototype jump for these methods.
+// Component上的属性拷贝到pureComponentPrototype上
 Object.assign(pureComponentPrototype, Component.prototype);
+
+// 这里是 PureComponent与Component 唯一的区别 
 pureComponentPrototype.isPureReactComponent = true;
 
 export {Component, PureComponent};

@@ -14,6 +14,7 @@ import {
   REACT_SUSPENSE_TYPE,
 } from 'shared/ReactSymbols';
 
+// 都引用ReactBaseClasses
 import {Component, PureComponent} from './ReactBaseClasses';
 import {createRef} from './ReactCreateRef';
 import {forEach, map, count, toArray, only} from './ReactChildren';
