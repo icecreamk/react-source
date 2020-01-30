@@ -1,4 +1,8 @@
-### 
+### 创建ref的两种方式
+- 通过function拿到ref
+- 通过createRef创建
+
+### forwardRef的是使用
 
 ``` jsx
 

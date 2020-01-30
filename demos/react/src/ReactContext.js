@@ -16,6 +16,7 @@ import warning from 'shared/warning';
 
 export function createContext<T>(
   defaultValue: T,
+  // 用于计算新旧context的变化
   calculateChangedBits: ?(a: T, b: T) => number,
 ): ReactContext<T> {
   if (calculateChangedBits === undefined) {
@@ -33,6 +34,7 @@ export function createContext<T>(
   }
 
   const context: ReactContext<T> = {
+    // 整个context对象是ReactElement里面的type
     $$typeof: REACT_CONTEXT_TYPE,
     _calculateChangedBits: calculateChangedBits,
     // As a workaround to support multiple concurrent renderers, we categorize
@@ -40,6 +42,7 @@ export function createContext<T>(
     // there to be two concurrent renderers at most: React Native (primary) and
     // Fabric (secondary); React DOM (primary) and React ART (secondary).
     // Secondary renderers store their context values on separate fields.
+    // 记录最新的context值
     _currentValue: defaultValue,
     _currentValue2: defaultValue,
     // These are circular
@@ -115,6 +118,7 @@ export function createContext<T>(
     // $FlowFixMe: Flow complains about missing properties because it doesn't understand defineProperty
     context.Consumer = Consumer;
   } else {
+    // Consumer等于自身，就可以从_currentValue中拿到最新的值
     context.Consumer = context;
   }
 
