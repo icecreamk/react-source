@@ -10,6 +10,7 @@ import {REACT_FORWARD_REF_TYPE} from 'shared/ReactSymbols';
 import warningWithoutStack from 'shared/warningWithoutStack';
 
 export default function forwardRef<Props, ElementType: React$ElementType>(
+  // render为传进来的函数组件
   render: (props: Props, ref: React$Ref<ElementType>) => React$Node,
 ) {
   if (__DEV__) {
@@ -39,6 +40,9 @@ export default function forwardRef<Props, ElementType: React$ElementType>(
     }
   }
 
+  // 注意
+  // forwardRef 创建的组件的$$typeof仍然是REACT_ELEMENT_TYPE，而组件的type里面是
+  // 以下这个对象
   return {
     $$typeof: REACT_FORWARD_REF_TYPE,
     render,
