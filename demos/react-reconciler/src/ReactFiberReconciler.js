@@ -130,6 +130,7 @@ function scheduleRootUpdate(
     }
   }
 
+  // 标记需要更新的地点
   const update = createUpdate(expirationTime);
   // Caution: React DevTools currently depends on this property
   // being called "element".
@@ -147,6 +148,7 @@ function scheduleRootUpdate(
   }
   enqueueUpdate(current, update);
 
+  // 开始进行任务调度，具有任务优先级
   scheduleWork(current, expirationTime);
   return expirationTime;
 }
@@ -264,6 +266,7 @@ function findHostInstanceWithWarning(
   return findHostInstance(component);
 }
 
+// 创建出一个FiberRoot
 export function createContainer(
   containerInfo: Container,
   isConcurrent: boolean,
@@ -280,6 +283,7 @@ export function updateContainer(
 ): ExpirationTime {
   const current = container.current;
   const currentTime = requestCurrentTime();
+  // 用于ConcurrentMode计算优先级
   const expirationTime = computeExpirationForFiber(currentTime, current);
   return updateContainerAtExpirationTime(
     element,

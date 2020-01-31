@@ -336,6 +336,7 @@ function ReactRoot(
   isConcurrent: boolean,
   hydrate: boolean,
 ) {
+  // 创建root节点(fiberRoot)
   const root = DOMRenderer.createContainer(container, isConcurrent, hydrate);
   this._internalRoot = root;
 }
@@ -352,6 +353,7 @@ ReactRoot.prototype.render = function(
   if (callback !== null) {
     work.then(callback);
   }
+  // 封装
   DOMRenderer.updateContainer(children, root, null, work._onCommit);
   return work;
 };
@@ -436,7 +438,6 @@ function getReactRootElementInContainer(container: any) {
   if (!container) {
     return null;
   }
-
   if (container.nodeType === DOCUMENT_NODE) {
     return container.documentElement;
   } else {
@@ -445,11 +446,12 @@ function getReactRootElementInContainer(container: any) {
 }
 
 function shouldHydrateDueToLegacyHeuristic(container) {
+  // 根据是否有子节点来判断是否需要调和dom
   const rootElement = getReactRootElementInContainer(container);
   return !!(
     rootElement &&
     rootElement.nodeType === ELEMENT_NODE &&
-    rootElement.hasAttribute(ROOT_ATTRIBUTE_NAME)
+    rootElement.hasAttribute(ROOT_ATTRIBUTE_NAME) //服务端渲染下会在root节点下的第一个子节点会带这个属性，以此标识是服务端渲染
   );
 }
 
@@ -471,6 +473,7 @@ function legacyCreateRootFromDOMContainer(
   if (!shouldHydrate) {
     let warned = false;
     let rootSibling;
+    // 循环清除container下的所有子节点
     while ((rootSibling = container.lastChild)) {
       if (__DEV__) {
         if (
@@ -506,6 +509,12 @@ function legacyCreateRootFromDOMContainer(
   return new ReactRoot(container, isConcurrent, shouldHydrate);
 }
 
+// null,
+// element,
+// container,
+// false,
+// callback,
+
 function legacyRenderSubtreeIntoContainer(
   parentComponent: ?React$Component<any, any>,
   children: ReactNodeList,
@@ -525,13 +534,17 @@ function legacyRenderSubtreeIntoContainer(
 
   // TODO: Without `any` type, Flow says "Property cannot be accessed on any
   // member of intersection type." Whyyyyyy.
+  // container为传进来的dom节点
+  // 第一次传进来的dom未通过react修饰不会带有_reactRootContainer该属性
   let root: Root = (container._reactRootContainer: any);
   if (!root) {
     // Initial mount
+    // 创建 _reactRootContainer
     root = container._reactRootContainer = legacyCreateRootFromDOMContainer(
       container,
       forceHydrate,
     );
+    // callback封装
     if (typeof callback === 'function') {
       const originalCallback = callback;
       callback = function() {
@@ -624,20 +637,23 @@ const ReactDOM: Object = {
     return DOMRenderer.findHostInstance(componentOrElement);
   },
 
+  // hydrate在服务端渲染的情况下使用，第四个参数传入true(这里是和render唯一的区别，render传入的是false)表
+  // 示复用dom节点(因为服务端第一次渲染和客户端是一样的)，提高性能
   hydrate(element: React$Node, container: DOMContainer, callback: ?Function) {
     // TODO: throw or warn if we couldn't hydrate?
     return legacyRenderSubtreeIntoContainer(
       null,
       element,
       container,
-      true,
+      true, // 
       callback,
     );
   },
 
+  // 接收三个参数
   render(
     element: React$Element<any>,
-    container: DOMContainer,
+    container: DOMContainer, // 挂载的节点
     callback: ?Function,
   ) {
     return legacyRenderSubtreeIntoContainer(
