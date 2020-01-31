@@ -56,7 +56,9 @@ const React = {
 
   Fragment: REACT_FRAGMENT_TYPE,
   StrictMode: REACT_STRICT_MODE_TYPE,
+  // ConcurrentMode 是一个symbol
   unstable_ConcurrentMode: REACT_CONCURRENT_MODE_TYPE,
+  // Suspense 是一个symbol
   Suspense: REACT_SUSPENSE_TYPE,
   unstable_Profiler: REACT_PROFILER_TYPE,
 
