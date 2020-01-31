@@ -51,6 +51,7 @@ function escapeUserProvidedKey(text) {
 }
 
 const POOL_SIZE = 10;
+// 对象池，防止多次声明和释放对象造成的内存抖动
 const traverseContextPool = [];
 function getPooledTraverseContext(
   mapResult,
@@ -58,6 +59,7 @@ function getPooledTraverseContext(
   mapFunction,
   mapContext,
 ) {
+  // 是否又已存在的节点
   if (traverseContextPool.length) {
     const traverseContext = traverseContextPool.pop();
     traverseContext.result = mapResult;
@@ -83,6 +85,7 @@ function releaseTraverseContext(traverseContext) {
   traverseContext.func = null;
   traverseContext.context = null;
   traverseContext.count = 0;
+  // 对象每一次用完都会被清空后放回去，从而避免了对象创建和删除的开销
   if (traverseContextPool.length < POOL_SIZE) {
     traverseContextPool.push(traverseContext);
   }
@@ -114,6 +117,7 @@ function traverseAllChildrenImpl(
   if (children === null) {
     invokeCallback = true;
   } else {
+    // 满足以下条件还能表示传入的是单个节点，不是数组
     switch (type) {
       case 'string':
       case 'number':
@@ -309,10 +313,12 @@ function mapSingleChildIntoContext(bookKeeping, child, childKey) {
 }
 
 function mapIntoWithKeyPrefixInternal(children, array, prefix, func, context) {
+  // 处理key
   let escapedPrefix = '';
   if (prefix != null) {
     escapedPrefix = escapeUserProvidedKey(prefix) + '/';
   }
+
   const traverseContext = getPooledTraverseContext(
     array,
     escapedPrefix,
