@@ -21,7 +21,7 @@ const ReactCurrentOwner = {
    * @internal
    * @type {ReactComponent}
    */
-  current: (null: null | Fiber),
+  current: (null: null | Fiber), // 目前正在渲染的节点的实例
   currentDispatcher: (null: null | Dispatcher),
 };
 

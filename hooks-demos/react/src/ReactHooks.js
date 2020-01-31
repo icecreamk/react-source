@@ -14,6 +14,7 @@ import warning from 'shared/warning';
 import ReactCurrentOwner from './ReactCurrentOwner';
 
 function resolveDispatcher() {
+  // ReactCurrentOwner.currentDispatcher在react-dom中实现
   const dispatcher = ReactCurrentOwner.currentDispatcher;
   invariant(
     dispatcher !== null,
