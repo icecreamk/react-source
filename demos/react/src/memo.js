@@ -10,8 +10,12 @@ import {REACT_MEMO_TYPE} from 'shared/ReactSymbols';
 import isValidElementType from 'shared/isValidElementType';
 import warningWithoutStack from 'shared/warningWithoutStack';
 
+// pure组件在prop没有变化的情况下不重新渲染
+// memo给function组件提供类似pure组件的功能
+// 具体细节在react-dom中实现
 export default function memo<Props>(
   type: React$ElementType,
+  // 对比新旧props
   compare?: (oldProps: Props, newProps: Props) => boolean,
 ) {
   if (__DEV__) {

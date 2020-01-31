@@ -261,6 +261,7 @@ export function createElement(type, config, children) {
  * Return a function that produces ReactElements of a given type.
  * See https://reactjs.org/docs/react-api.html#createfactory
  */
+// 对createElement的一个封装，用于创建创建标签，jsx不需要所以不会用到
 export function createFactory(type) {
   const factory = createElement.bind(null, type);
   // Expose the type on the factory and the prototype so that it can be

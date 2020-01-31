@@ -55,6 +55,7 @@ const React = {
   memo,
 
   Fragment: REACT_FRAGMENT_TYPE,
+  // 某个节点下的子树都要按照某种模式进行渲染
   StrictMode: REACT_STRICT_MODE_TYPE,
   // ConcurrentMode 是一个symbol
   unstable_ConcurrentMode: REACT_CONCURRENT_MODE_TYPE,
