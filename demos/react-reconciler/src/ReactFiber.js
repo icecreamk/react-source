@@ -94,18 +94,23 @@ export type Fiber = {|
   // minimize the number of objects created during the initial render.
 
   // Tag identifying the type of fiber.
+  // 标记不同的组件类型
   tag: WorkTag,
 
   // Unique identifier of this child.
+  // ReactElement里面的key
   key: null | string,
 
   // The value of element.type which is used to preserve the identity during
   // reconciliation of this child.
+  // ReactElement.type createElement里的第一个参数
   elementType: any,
 
   // The resolved function/class/ associated with this fiber.
+  // 异步组件resolve之后返回的内容，function或者class
   type: any,
 
+  // 跟当前Fiber相关的状态（如，浏览器环境就是dom节点）
   // The local state associated with this fiber.
   stateNode: any,
 
@@ -119,27 +124,38 @@ export type Fiber = {|
   // This is effectively the parent, but there can be multiple parents (two)
   // so this is only the parent of the thing we're currently processing.
   // It is conceptually the same as the return address of a stack frame.
+  // 指向其在Fiber节点树中的parent,用来在处理该节点之后向上返回
   return: Fiber | null,
 
+  // 单链表树结构
   // Singly Linked List Tree Structure.
+  // 指向第一个子节点
   child: Fiber | null,
+  // 指向兄弟结构
+  // 兄弟节点的return指向同一个父节点
   sibling: Fiber | null,
   index: number,
 
   // The ref last used to attach this node.
   // I'll avoid adding an owner field for prod and model that as functions.
+  // ref属性
   ref: null | (((handle: mixed) => void) & {_stringRef: ?string}) | RefObject,
 
   // Input is the data coming into process this fiber. Arguments. Props.
+  // 新的变动带来新的props
   pendingProps: any, // This type will be more specific once we overload the tag.
+  // 上一次渲染完成之后的props
   memoizedProps: any, // The props used to create the output.
 
+  // 该Fiber对应的组件产生的Update会存放在这里
   // A queue of state updates and callbacks.
   updateQueue: UpdateQueue<any> | null,
 
+  // 上一次渲染的state
   // The state used to create the output
   memoizedState: any,
 
+  // 一个列表，存放该Fiber依赖的context
   // A linked-list of contexts that this fiber depends on
   firstContextDependency: ContextDependency<mixed> | null,
 
@@ -149,30 +165,50 @@ export type Fiber = {|
   // parent. Additional flags can be set at creation time, but after that the
   // value should remain unchanged throughout the fiber's lifetime, particularly
   // before its child fibers are created.
+  // 用于描述当前Fiber和他子树的Bitfield
+  // 共存的模式表示这个子树是否默认是异步渲染的
+  // Fiber被创建的时候他会继承父Fiber
+  // 其他的标识也可以在创建的时候被设置
+  // 但是创建之后不应该被修改，特别是其子Fiber创建之前
   mode: TypeOfMode,
 
-  // Effect
+  // Effect（副作用）
+  // 1.用于标记最终的dom要产生哪些更新的工具
+  // 2.用于标记是否要执行组件的某些生命周期
+
+  // 记录 side Effect
   effectTag: SideEffectTag,
 
   // Singly linked list fast path to the next fiber with side-effects.
+  // 单链表用于快速查找下一个 side Effect
   nextEffect: Fiber | null,
 
   // The first and last fiber with side-effect within this subtree. This allows
   // us to reuse a slice of the linked list when we reuse the work done within
   // this fiber.
+  // 子树中第一个 side Effect
   firstEffect: Fiber | null,
+  // 子树中最后一个 side Effect
   lastEffect: Fiber | null,
 
   // Represents a time in the future by which this work should be completed.
   // Does not include work found in its subtree.
+
+  // 代表任务在未来的哪个时间点应该被完成
+  // 不包含其子树产生的任务
   expirationTime: ExpirationTime,
 
+  // 子节点的过期时间，快速确定子树中是否有不在等待的变化
   // This is used to quickly determine if a subtree has no pending changes.
   childExpirationTime: ExpirationTime,
 
   // This is a pooled version of a Fiber. Every fiber that gets updated will
   // eventually have a pair. There are cases when we can clean up pairs to save
   // memory if we need to.
+  // current <=>workInProgerss
+  // 每次新的更新创建一个 workInProgerss ，在更新渲染到dom上之后，workInProgerss赋值给current
+  // 下一次更新的时候current赋值给workInProgerss。
+  // 目的是为了保持两个对象都存在，无需创建新对象，这种一个提高性能的doblebuffer方案
   alternate: Fiber | null,
 
   // Time spent rendering this Fiber and its descendants for the current update.
