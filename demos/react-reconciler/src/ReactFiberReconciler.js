@@ -131,9 +131,11 @@ function scheduleRootUpdate(
   }
 
   // 标记需要更新的地点
+  // 创建update对象
   const update = createUpdate(expirationTime);
   // Caution: React DevTools currently depends on this property
   // being called "element".
+  // 初次渲染时，payload是挂载节点app
   update.payload = {element};
 
   callback = callback === undefined ? null : callback;

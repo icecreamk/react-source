@@ -149,15 +149,25 @@ if (__DEV__) {
   };
 }
 
+// 创建updatequeue,把所有属性置为null
 export function createUpdateQueue<State>(baseState: State): UpdateQueue<State> {
   const queue: UpdateQueue<State> = {
+    // 每次操作完更新之后的state
     baseState,
+
+    // 队列的第一个update
     firstUpdate: null,
     lastUpdate: null,
+
+    // 第一个捕获类型的update
     firstCapturedUpdate: null,
     lastCapturedUpdate: null,
+
+    // 第一个 side effect
     firstEffect: null,
     lastEffect: null,
+
+    // 第一个捕获产生的 side effect
     firstCapturedEffect: null,
     lastCapturedEffect: null,
   };
@@ -185,16 +195,26 @@ function cloneUpdateQueue<State>(
   };
   return queue;
 }
-
+// 
 export function createUpdate(expirationTime: ExpirationTime): Update<*> {
   return {
+    // 更新的过期时间
     expirationTime: expirationTime,
 
+    // export const UpdateState = 0; 更新state
+    // export const ReplaceState = 1; 替代state
+    // export const ForceUpdate = 2; 强制更新state
+    // export const CaptureUpdate = 3; 错误捕获后生成一个update，重新渲染节点
+    // 指定更新的类型，值为以上几种
     tag: UpdateState,
+    // 更新内容，如'setState'接收的第一个参数
     payload: null,
+    // 对应的回调，如setState和render
     callback: null,
 
+    // 指向下一个更新 单项链表结构
     next: null,
+    // 指向下一个 side effect
     nextEffect: null,
   };
 }
@@ -208,17 +228,21 @@ function appendUpdateToQueue<State>(
     // Queue is empty
     queue.firstUpdate = queue.lastUpdate = update;
   } else {
+    // 若存在lastUpdate，则把新的追加在后面
     queue.lastUpdate.next = update;
     queue.lastUpdate = update;
   }
 }
 
+// 创建或更新update队列的过程
+// 初始化updatequeue 若已经存在就更新它
 export function enqueueUpdate<State>(fiber: Fiber, update: Update<State>) {
   // Update queues are created lazily.
   const alternate = fiber.alternate;
   let queue1;
   let queue2;
   if (alternate === null) {
+    // 第一次渲染react dom时的操作
     // There's only one fiber.
     queue1 = fiber.updateQueue;
     queue2 = null;
@@ -226,6 +250,7 @@ export function enqueueUpdate<State>(fiber: Fiber, update: Update<State>) {
       queue1 = fiber.updateQueue = createUpdateQueue(fiber.memoizedState);
     }
   } else {
+    // 已经渲染更新过的操作
     // There are two owners.
     queue1 = fiber.updateQueue;
     queue2 = alternate.updateQueue;
