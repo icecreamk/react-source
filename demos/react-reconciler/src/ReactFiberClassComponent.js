@@ -200,6 +200,7 @@ const classComponentUpdater = {
     }
 
     enqueueUpdate(fiber, update);
+    // 
     scheduleWork(fiber, expirationTime);
   },
   enqueueReplaceState(inst, payload, callback) {
@@ -237,6 +238,7 @@ const classComponentUpdater = {
     }
 
     enqueueUpdate(fiber, update);
+    // 
     scheduleWork(fiber, expirationTime);
   },
 };
