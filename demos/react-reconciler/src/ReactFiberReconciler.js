@@ -283,9 +283,10 @@ export function updateContainer(
   parentComponent: ?React$Component<any, any>,
   callback: ?Function,
 ): ExpirationTime {
-  const current = container.current;
+  const current = container.current; // fiber 对象
   const currentTime = requestCurrentTime();
   // 用于ConcurrentMode计算优先级
+  // 计算过期时间
   const expirationTime = computeExpirationForFiber(currentTime, current);
   return updateContainerAtExpirationTime(
     element,

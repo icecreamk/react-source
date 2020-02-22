@@ -9,6 +9,7 @@
 
 export type TypeOfMode = number;
 
+// 二进制定义，通过与或来方便组合和判断各种mode
 export const NoContext = 0b000;
 export const ConcurrentMode = 0b001;
 export const StrictMode = 0b010;

@@ -21,6 +21,7 @@ const MAGIC_NUMBER_OFFSET = 2;
 // 1 unit of expiration time represents 10ms.
 export function msToExpirationTime(ms: number): ExpirationTime {
   // Always add an offset so that we don't clash with the magic number for NoWork.
+  // | 0 表示取整
   return ((ms / UNIT_SIZE) | 0) + MAGIC_NUMBER_OFFSET;
 }
 
@@ -46,8 +47,8 @@ function computeExpirationBucket(
   );
 }
 
-export const LOW_PRIORITY_EXPIRATION = 5000;
-export const LOW_PRIORITY_BATCH_SIZE = 250;
+export const LOW_PRIORITY_EXPIRATION = 5000; // 高权限
+export const LOW_PRIORITY_BATCH_SIZE = 250; // 低权限
 
 export function computeAsyncExpiration(
   currentTime: ExpirationTime,

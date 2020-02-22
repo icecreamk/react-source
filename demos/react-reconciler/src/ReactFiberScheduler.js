@@ -1494,11 +1494,14 @@ function computeUniqueAsyncExpiration(): ExpirationTime {
 }
 
 function computeExpirationForFiber(currentTime: ExpirationTime, fiber: Fiber) {
+  // 
   let expirationTime;
   if (expirationContext !== NoWork) {
+    // 外部强制更新情况
     // An explicit expiration context was set;
     expirationTime = expirationContext;
   } else if (isWorking) {
+    // 有任务在更新情况
     if (isCommitting) {
       // Updates that occur during the commit phase should have sync priority
       // by default.
@@ -1828,7 +1831,9 @@ let lastCommittedRootDuringThisBatch: FiberRoot | null = null;
 const timeHeuristicForUnitOfWork = 1;
 
 function recomputeCurrentRendererTime() {
+  // originalStartTimeMs 为加载完成的初始值
   const currentTimeMs = now() - originalStartTimeMs;
+  // 得到一个类似时间戳
   currentRendererTime = msToExpirationTime(currentTimeMs);
 }
 
@@ -1940,10 +1945,12 @@ function requestCurrentTime() {
   // if we know for certain that we're not in the middle of an event.
 
   if (isRendering) {
+    // 进入到渲染阶段
     // We're already rendering. Return the most recently read time.
     return currentSchedulerTime;
   }
   // Check if there's pending work.
+  // 找到权限最高的root
   findHighestPriorityRoot();
   if (
     nextFlushedExpirationTime === NoWork ||
