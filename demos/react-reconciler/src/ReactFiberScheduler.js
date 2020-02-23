@@ -2000,6 +2000,7 @@ function requestWork(root: FiberRoot, expirationTime: ExpirationTime) {
     return;
   }
 
+  // 批处理相关
   if (isBatchingUpdates) {
     // Flush work at the end of the batch.
     if (isUnbatchingUpdates) {
@@ -2024,12 +2025,14 @@ function addRootToSchedule(root: FiberRoot, expirationTime: ExpirationTime) {
   // Add the root to the schedule.
   // Check if this root is already part of the schedule.
   if (root.nextScheduledRoot === null) {
+    // 只有一个root情况，先用一个异步调度任务
     // This root is not already scheduled. Add it.
     root.expirationTime = expirationTime;
     if (lastScheduledRoot === null) {
       firstScheduledRoot = lastScheduledRoot = root;
       root.nextScheduledRoot = root;
     } else {
+      // 把当前root放在链表的最后
       lastScheduledRoot.nextScheduledRoot = root;
       lastScheduledRoot = root;
       lastScheduledRoot.nextScheduledRoot = firstScheduledRoot;
