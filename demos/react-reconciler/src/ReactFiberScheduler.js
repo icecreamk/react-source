@@ -353,9 +353,11 @@ if (__DEV__ && replayFailedUnitOfWorkWithInvokeGuardedCallback) {
 }
 
 function resetStack() {
+  // nextUnitOfWork 记录即将更新的节点
   if (nextUnitOfWork !== null) {
     let interruptedWork = nextUnitOfWork.return;
     while (interruptedWork !== null) {
+      // 将原先的节点的更新退回
       unwindInterruptedWork(interruptedWork);
       interruptedWork = interruptedWork.return;
     }
@@ -1619,7 +1621,9 @@ function retrySuspendedRoot(
   }
 }
 
+// 作用：1.根据传入的参数Fiber向上找到对于的RootFiber 2.其他操作
 function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null {
+  // 用于 polyfill module 记录一个更新流程的时间
   recordScheduleUpdate();
 
   if (__DEV__) {
@@ -1631,12 +1635,16 @@ function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null {
 
   // Update the source fiber's expiration time
   if (
+    // NoWork 表示 没有任何更新操作
     fiber.expirationTime === NoWork ||
+    // 之前的expirationTime大于当前的，说明之前的优先级低
     fiber.expirationTime > expirationTime
   ) {
+    // 将优先级设置成高的
     fiber.expirationTime = expirationTime;
   }
   let alternate = fiber.alternate;
+  // 更新 alternate 的 expirationTime
   if (
     alternate !== null &&
     (alternate.expirationTime === NoWork ||
@@ -1645,14 +1653,20 @@ function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null {
     alternate.expirationTime = expirationTime;
   }
   // Walk the parent path to the root and update the child expiration time.
+  // fiber 为当前创建更新的组件
+  // fiber.return 向上查找父节点
   let node = fiber.return;
   let root = null;
+
+  // node为RootFiber是为null
   if (node === null && fiber.tag === HostRoot) {
+    // RootFiber的stateNode是FiberRoot
     root = fiber.stateNode;
   } else {
     while (node !== null) {
       alternate = node.alternate;
       if (
+        // node.childExpirationTime 表示 node的子树中优先级最高的 expirationTime
         node.childExpirationTime === NoWork ||
         node.childExpirationTime > expirationTime
       ) {
@@ -1679,6 +1693,7 @@ function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null {
     }
   }
 
+  // 找不到RootFiber节点的报错
   if (root === null) {
     if (__DEV__ && fiber.tag === ClassComponent) {
       warnAboutUpdateOnUnmounted(fiber);
@@ -1686,6 +1701,7 @@ function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null {
     return null;
   }
 
+  // 跟踪应用的更新
   if (enableSchedulerTracing) {
     const interactions = __interactionsRef.current;
     if (interactions.size > 0) {
@@ -1724,12 +1740,14 @@ function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null {
 }
 
 function scheduleWork(fiber: Fiber, expirationTime: ExpirationTime) {
+  // 
   const root = scheduleWorkToRoot(fiber, expirationTime);
   if (root === null) {
     return;
   }
 
   if (
+    // 高优先级任务打断低优先级任务
     !isWorking &&
     nextRenderExpirationTime !== NoWork &&
     expirationTime < nextRenderExpirationTime
@@ -1742,6 +1760,7 @@ function scheduleWork(fiber: Fiber, expirationTime: ExpirationTime) {
   if (
     // If we're in the render phase, we don't need to schedule this root
     // for an update, because we'll do it before we exit...
+    // isCommitting 为更新dom的过程
     !isWorking ||
     isCommitting ||
     // ...unless this is a different root than the one we're rendering.
@@ -1750,6 +1769,7 @@ function scheduleWork(fiber: Fiber, expirationTime: ExpirationTime) {
     const rootExpirationTime = root.expirationTime;
     requestWork(root, rootExpirationTime);
   }
+  // 防止setState更新嵌套
   if (nestedUpdateCount > NESTED_UPDATE_LIMIT) {
     // Reset this back to zero so subsequent updates don't throw.
     nestedUpdateCount = 0;
