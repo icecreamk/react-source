@@ -79,6 +79,7 @@ var deadlineObject = {
 
 function ensureHostCallbackIsScheduled() {
   if (isExecutingCallback) {
+    // 已经开始调用callback
     // Don't schedule work yet; wait until the next time we yield.
     return;
   }
@@ -100,10 +101,12 @@ function flushFirstCallback() {
   // list is in a consistent state even if the callback throws.
   var next = firstCallbackNode.next;
   if (firstCallbackNode === next) {
+    // 只有一个
     // This is the last callback in the list.
     firstCallbackNode = null;
     next = null;
   } else {
+    // 环形的，故第一个的上一个就是最后一个
     var lastCallbackNode = firstCallbackNode.previous;
     firstCallbackNode = lastCallbackNode.next = next;
     next.previous = lastCallbackNode;
@@ -210,6 +213,7 @@ function flushWork(didTimeout) {
   deadlineObject.didTimeout = didTimeout;
   try {
     if (didTimeout) {
+      // 存在过期任务
       // Flush all the expired callbacks without yielding.
       while (firstCallbackNode !== null) {
         // Read the current time. Flush all the callbacks that expire at or
@@ -217,6 +221,7 @@ function flushWork(didTimeout) {
         // This optimizes for as few performance.now calls as possible.
         var currentTime = getCurrentTime();
         if (firstCallbackNode.expirationTime <= currentTime) {
+          // 执行过期任务，直到不过期的位置
           do {
             flushFirstCallback();
           } while (
@@ -228,12 +233,14 @@ function flushWork(didTimeout) {
         break;
       }
     } else {
+      // 不是过期任务
       // Keep flushing callbacks until we run out of time in the frame.
       if (firstCallbackNode !== null) {
         do {
           flushFirstCallback();
         } while (
           firstCallbackNode !== null &&
+          // 帧时间还有空余的情况下
           getFrameDeadline() - getCurrentTime() > 0
         );
       }
@@ -480,6 +487,7 @@ if (typeof window !== 'undefined' && window._schedMock) {
   typeof window === 'undefined' ||
   // "addEventListener" might not be available on the window object
   // if this is a mocked "window" object. So we need to validate that too.
+  // 判断不处于浏览器环境
   typeof window.addEventListener !== 'function'
 ) {
   var _callback = null;
